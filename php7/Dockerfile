@@ -1,19 +1,52 @@
-FROM blinkreaction/drupal-base:jessie
+FROM ubuntu:15.10
 
 MAINTAINER Christian Wiedemann <christian.wiedemann@key-tec.de>
 
-# Basic packages
+# Set timezone and locale.
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+
+
+ENV TERM xterm
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes --no-install-recommends install \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common
+
+RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php && \
+    DEBIAN_FRONTEND=noninteractive apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    php7.0-common \
+    php7.0-cli \
+    php7.0-mysql \
+    php7.0-mcrypt \
+    php7.0-curl \
+    php7.0-mbstring \
+    php-xdebug \
+    php7.0-gd \
+    php7.0-sqlite \
+    php7.0-json \
+    php7.0-intl \
+    php7.0-xml \
+    php7.0-fpm
+    # Cleanup
+# Basic packages
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes --no-install-recommends install \
     zip unzip \
     git \
+    curl \
     mysql-client \
-    imagemagick \
     pv \
     openssh-client \
     rsync \
     apt-transport-https \
     sudo \
+    locales \
+    supervisor \
+    procps \
+     mc \
     # Cleanup
     && DEBIAN_FRONTEND=noninteractive apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -23,58 +56,39 @@ RUN \
     useradd -m -s /bin/bash -g users -G sudo -p docker docker && \
     echo 'docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
+
+
 # PHP packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes --no-install-recommends install \
-    php5-common \
-    php5-cli \
-    php-pear \
-    php5-mysql \
-    php5-imagick \
-    php5-mcrypt \
-    php5-curl \
-    php5-gd \
-    php5-sqlite \
-    php5-json \
-    php5-intl \
-    php5-fpm \
-    php5-memcache \
-    php5-xdebug \
-    php5-ssh2 \
-    php5-gnupg \
-    # Cleanup
-    && DEBIAN_FRONTEND=noninteractive apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ## PHP settings
 RUN mkdir -p /var/www/docroot && \
     # PHP-FPM settings
-    ## /etc/php5/fpm/php.ini
-    sed -i '/memory_limit = /c memory_limit = 256M' /etc/php5/fpm/php.ini && \
-    sed -i '/max_execution_time = /c max_execution_time = 300' /etc/php5/fpm/php.ini && \
-    sed -i '/upload_max_filesize = /c upload_max_filesize = 500M' /etc/php5/fpm/php.ini && \
-    sed -i '/post_max_size = /c post_max_size = 500M' /etc/php5/fpm/php.ini && \
-    sed -i '/error_log = /c error_log = \/dev\/stdout' /etc/php5/fpm/php.ini && \
-    sed -i '/;always_populate_raw_post_data/c always_populate_raw_post_data = -1' /etc/php5/fpm/php.ini && \
-    sed -i '/;sendmail_path/c sendmail_path = /bin/true' /etc/php5/fpm/php.ini && \
-    ## /etc/php5/fpm/pool.d/www.conf
-    sed -i '/user = /c user = docker' /etc/php5/fpm/pool.d/www.conf && \
-    sed -i '/;catch_workers_output = /c catch_workers_output = yes' /etc/php5/fpm/pool.d/www.conf && \
-    sed -i '/listen = /c listen = 0.0.0.0:9000' /etc/php5/fpm/pool.d/www.conf && \
-    sed -i '/listen.allowed_clients/c ;listen.allowed_clients =' /etc/php5/fpm/pool.d/www.conf && \
-    sed -i '/;clear_env = /c clear_env = no' /etc/php5/fpm/pool.d/www.conf && \
-    ## /etc/php5/fpm/php-fpm.conf
-    sed -i '/;daemonize = /c daemonize = no' /etc/php5/fpm/php-fpm.conf && \
-    sed -i '/error_log = /c error_log = \/dev\/stdout' /etc/php5/fpm/php-fpm.conf && \
+    ## /etc/php/7.0/fpm/php.ini
+    sed -i '/memory_limit = /c memory_limit = 256M' /etc/php/7.0/fpm/php.ini && \
+    sed -i '/max_execution_time = /c max_execution_time = 300' /etc/php/7.0/fpm/php.ini && \
+    sed -i '/upload_max_filesize = /c upload_max_filesize = 500M' /etc/php/7.0/fpm/php.ini && \
+    sed -i '/post_max_size = /c post_max_size = 500M' /etc/php/7.0/fpm/php.ini && \
+    sed -i '/error_log = /c error_log = \/dev\/stdout' /etc/php/7.0/fpm/php.ini && \
+    sed -i '/;always_populate_raw_post_data/c always_populate_raw_post_data = -1' /etc/php/7.0/fpm/php.ini && \
+    sed -i '/;sendmail_path/c sendmail_path = /bin/true' /etc/php/7.0/fpm/php.ini && \
+    ## /etc/php/7.0/fpm/pool.d/www.conf
+    sed -i '/user = /c user = docker' /etc/php/7.0/fpm/pool.d/www.conf && \
+    sed -i '/;catch_workers_output = /c catch_workers_output = yes' /etc/php/7.0/fpm/pool.d/www.conf && \
+    sed -i '/listen = /c listen = 0.0.0.0:9000' /etc/php/7.0/fpm/pool.d/www.conf && \
+    sed -i '/listen.allowed_clients/c ;listen.allowed_clients =' /etc/php/7.0/fpm/pool.d/www.conf && \
+    sed -i '/;clear_env = /c clear_env = no' /etc/php/7.0/fpm/pool.d/www.conf && \
+    ## /etc/php/7.0/fpm/php-fpm.conf
+    sed -i '/;daemonize = /c daemonize = no' /etc/php/7.0/fpm/php-fpm.conf && \
+    sed -i '/error_log = /c error_log = \/dev\/stdout' /etc/php/7.0/fpm/php-fpm.conf && \
     # PHP CLI settings
-    sed -i '/memory_limit = /c memory_limit = 512M' /etc/php5/cli/php.ini && \
-    sed -i '/max_execution_time = /c max_execution_time = 600' /etc/php5/cli/php.ini && \
-    sed -i '/error_log = php_errors.log/c error_log = \/dev\/stdout' /etc/php5/cli/php.ini && \
-    sed -i '/;sendmail_path/c sendmail_path = /bin/true' /etc/php5/cli/php.ini && \
+    sed -i '/memory_limit = /c memory_limit = 512M' /etc/php/7.0/cli/php.ini && \
+    sed -i '/max_execution_time = /c max_execution_time = 600' /etc/php/7.0/cli/php.ini && \
+    sed -i '/error_log = php_errors.log/c error_log = \/dev\/stdout' /etc/php/7.0/cli/php.ini && \
+    sed -i '/;sendmail_path/c sendmail_path = /bin/true' /etc/php/7.0/cli/php.ini && \
     # PHP module settings
-    echo 'opcache.memory_consumption=128' >> /etc/php5/mods-available/opcache.ini
+    echo 'opcache.memory_consumption=128' >> /etc/php/7.0/mods-available/opcache.ini
 
-COPY config/php5/xdebug.ini /etc/php5/mods-available/xdebug.ini
+#COPY config/php5/xdebug.ini /etc/php/7.0/mods-available/xdebug.ini
 
 # Adding NodeJS repo (for up-to-date versions)
 # This is a stripped down version of the official nodejs install script (https://deb.nodesource.com/setup_4.x)
@@ -111,6 +125,15 @@ RUN \
     chmod +x /usr/local/bin/drupal
 ENV PATH /home/docker/.composer/vendor/bin:$PATH
 
+# Install gosu and give access to the users group to use it. gosu will be used to run services as a different user.
+RUN curl -sSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64" -o /usr/local/bin/gosu && \
+    chown root:users /usr/local/bin/gosu && \
+    chmod +sx /usr/local/bin/gosu
+
+# Set TERM so text editors/etc. can be used
+ENV TERM xterm
+
+
 # All further RUN commands will run as the "docker" user
 USER docker
 
@@ -126,14 +149,10 @@ RUN \
     # Install global node packages
     npm install -g npm && \
     npm install -g bower && \
-    npm install -g grunt
+    npm install -g grunt-cli
 
 RUN \
     # Legacy Drush versions (6 and 7)
-    mkdir /home/docker/drush6 && cd /home/docker/drush6 && composer require drush/drush:6.* && \
-    mkdir /home/docker/drush7 && cd /home/docker/drush7 && composer require drush/drush:7.* && \
-    echo "alias drush6='/home/docker/drush6/vendor/bin/drush'" >> /home/docker/.bashrc && \
-    echo "alias drush7='/home/docker/drush7/vendor/bin/drush'" >> /home/docker/.bashrc && \
     echo "alias drush8='/usr/local/bin/drush'" >> /home/docker/.bashrc && \
     # Drush modules
     drush dl registry_rebuild-7.x-2.2 && \
@@ -142,6 +161,10 @@ RUN \
     # Drupal Coder w/ a matching version of PHP_CodeSniffer
     composer global require drupal/coder && \
     phpcs --config-set installed_paths /home/docker/.composer/vendor/drupal/coder/coder_sniffer
+
+
+
+
 
 # Copy configs and scripts
 COPY config/.ssh /home/docker/.ssh
