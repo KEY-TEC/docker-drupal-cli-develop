@@ -24,7 +24,6 @@ RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php && \
     php7.0-mcrypt \
     php7.0-curl \
     php7.0-mbstring \
-    php-xdebug \
     php7.0-gd \
     php7.0-sqlite \
     php7.0-json \
