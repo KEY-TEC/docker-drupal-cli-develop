@@ -1,11 +1,14 @@
-# CLI Docker image for Drupal
+
+
+
+# Drude (https://github.com/blinkreaction/drude) Docker ubuntu cli image for php5 and php7
 
 Based on Ubuntu 15.10 "Willy" (ubuntu:willy)
 
 ## Includes
 
 - php
-  - php-fpm && php-cli 5.6.x
+  - php-fpm && php-cli 5.6.x or 7.0.x
   - composer 1.0-dev
   - drush 6,7,8
     - registry_rebuild
@@ -20,6 +23,8 @@ Based on Ubuntu 15.10 "Willy" (ubuntu:willy)
   - nodejs 4.2.2 (via nvm)
     - npm 3.4.0
     - bower 1.6.5
+    - grunt
+    - gulp
 - python 2.7.3
 
 Other notable tools:
