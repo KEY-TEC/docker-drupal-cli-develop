@@ -1,6 +1,3 @@
-
-
-
 # Drude (https://github.com/blinkreaction/drude) Docker ubuntu cli image for php5 and php7
 
 Based on Ubuntu 15.10 "Willy" (ubuntu:willy)
