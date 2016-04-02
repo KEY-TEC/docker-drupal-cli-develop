@@ -107,6 +107,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 
 # bundler
 RUN gem install bundler
+RUN gem install compass
 # Home directory for bundle installs
 ENV BUNDLE_PATH .bundler
 
