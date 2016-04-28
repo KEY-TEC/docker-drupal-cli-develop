@@ -149,7 +149,8 @@ RUN \
     # Install global node packages
     npm install -g npm && \
     npm install -g bower && \
-    npm install -g grunt-cli
+    npm install -g grunt-cli && \
+    npm install -g coffee-script
 
 RUN \
     # Legacy Drush versions (6 and 7)
