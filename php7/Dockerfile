@@ -29,6 +29,7 @@ RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php && \
     php7.0-json \
     php7.0-intl \
     php7.0-bcmath \
+    php7.0-soap \
     php7.0-xml \
     php7.0-fpm
     # Cleanup
@@ -150,7 +151,8 @@ RUN \
     # Install global node packages
     npm install -g npm && \
     npm install -g bower && \
-    npm install -g grunt-cli
+    npm install -g grunt-cli && \
+    npm install -g coffee-script
 
 RUN \
     # Legacy Drush versions (6 and 7)
