@@ -41,6 +41,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     php5-memcache \
     php5-xdebug \
     php5-ssh2 \
+    php5-bcmath \
     php5-gnupg \
     # Cleanup
     && DEBIAN_FRONTEND=noninteractive apt-get clean && \
