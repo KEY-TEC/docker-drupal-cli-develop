@@ -113,8 +113,8 @@ RUN gem install compass
 # Home directory for bundle installs
 ENV BUNDLE_PATH .bundler
 
-ENV DRUSH_VERSION 8.0.1
-ENV DRUPAL_CONSOLE_VERSION 0.10.1
+ENV DRUSH_VERSION 8.1.2
+ENV DRUPAL_CONSOLE_VERSION 1.0.0-beta3
 RUN \
     # Composer
     curl -sSL https://getcomposer.org/installer | php && \
